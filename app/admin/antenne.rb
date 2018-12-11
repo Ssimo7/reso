@@ -6,6 +6,15 @@ ActiveAdmin.register Antenne do
   includes :institution, :advisors, :experts, :sent_matches, :received_matches
   config.sort_order = 'name_asc'
 
+  controller do
+    def scoped_collection
+      super
+        .left_outer_joins(:communes)
+        .select('antennes.*, COUNT(communes.*) AS communes_count')
+        .group('antennes.id')
+    end
+  end
+
   scope :all, default: true
   scope :without_communes
 
@@ -18,6 +27,9 @@ ActiveAdmin.register Antenne do
     column(:community) do |a|
       div admin_link_to(a, :advisors)
       div admin_link_to(a, :experts)
+    end
+    column(:intervention_zone) do |a|
+      div admin_link_to(a, :communes)
     end
     column(:activity) do |a|
       div admin_link_to(a, :sent_matches)

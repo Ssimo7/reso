@@ -48,7 +48,9 @@ module AdminHelper
           '-'
         end
       else # single link to list
-        count = object.send(association).size
+        counter_symbol = "#{association}_count".to_sym
+        count = object.send(counter_symbol) if object.respond_to?(counter_symbol)
+        count ||= object.send(association).size
         text = "#{count} #{klass.human_attribute_name(association, count: count).downcase}"
         foreign_klass = association_reflection.klass
         inverse = association_reflection.options[:inverse_of]
