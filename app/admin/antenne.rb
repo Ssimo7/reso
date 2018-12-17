@@ -3,14 +3,18 @@ ActiveAdmin.register Antenne do
 
   ## Index
   #
-  includes :institution, :advisors, :experts, :sent_matches, :received_matches
+  includes :institution#, :received_matches
   config.sort_order = 'name_asc'
 
   controller do
     def scoped_collection
       super
-        .left_outer_joins(:communes)
-        .select('antennes.*, COUNT(communes.*) AS communes_count')
+        .left_outer_joins(:advisors)
+        .select('antennes.*, COUNT(DISTINCT users.*) AS advisors_count')
+        .left_outer_joins(:experts)
+        .select('antennes.*, COUNT(DISTINCT experts.*) AS experts_count')
+        .left_outer_joins(:sent_matches)
+        .select('antennes.*, COUNT(DISTINCT matches.*) AS sent_matches_count')
         .group('antennes.id')
     end
   end
@@ -28,12 +32,13 @@ ActiveAdmin.register Antenne do
       div admin_link_to(a, :advisors)
       div admin_link_to(a, :experts)
     end
-    column(:intervention_zone) do |a|
-      div admin_link_to(a, :communes)
-    end
+    # column(:intervention_zone) do |a|
+    #   div admin_link_to(a, :territories)
+    #   div admin_link_to(a, :communes)
+    # end
     column(:activity) do |a|
       div admin_link_to(a, :sent_matches)
-      div admin_link_to(a, :received_matches)
+      # div admin_link_to(a, :received_matches)
     end
   end
 
